@@ -23,14 +23,17 @@ import IOKit
         if let stableID = AIProxy.stableID {
             return stableID
         }
+        let clientID: String?
 #if os(watchOS)
-        let clientID = WKInterfaceDevice.current().identifierForVendor?.uuidString
+        clientID = WKInterfaceDevice.current().identifierForVendor?.uuidString
 #elseif canImport(UIKit)
-        let clientID = await UIDevice.current.identifierForVendor?.uuidString
+        clientID = await UIDevice.current.identifierForVendor?.uuidString
 #elseif canImport(IOKit)
-        let clientID = getIdentifierFromIOKit()
+        clientID = getIdentifierFromIOKit()
 #elseif os(Linux)
-        let clientID = UUID().uuidString
+        clientID = UUID().uuidString
+#else
+        clientID = nil
 #endif
         if let clientID = clientID {
             return clientID
