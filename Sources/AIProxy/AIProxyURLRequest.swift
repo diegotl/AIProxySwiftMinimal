@@ -35,22 +35,6 @@ import Foundation
             forHTTPHeaderField: "aiproxy-metadata"
         )
 
-        if let resolvedAccount = AnonymousAccountStorage.resolvedAccount {
-            request.addValue(resolvedAccount.uuid, forHTTPHeaderField: "aiproxy-anonymous-id")
-        }
-
-    #if targetEnvironment(simulator)
-        guard let deviceCheckBypass = ProcessInfo.processInfo.environment["AIPROXY_DEVICE_CHECK_BYPASS"] else {
-            throw AIProxyError.deviceCheckBypassIsMissing
-        }
-        request.addValue(deviceCheckBypass, forHTTPHeaderField: "aiproxy-devicecheck-bypass")
-    #else
-        guard let deviceCheckToken = await AIProxyDeviceCheck.getToken(forClient: resolvedClientID) else {
-            throw AIProxyError.deviceCheckIsUnavailable
-        }
-        request.addValue(deviceCheckToken, forHTTPHeaderField: "aiproxy-devicecheck")
-    #endif
-
         if let contentType = contentType {
             request.addValue(contentType, forHTTPHeaderField: "Content-Type")
         }

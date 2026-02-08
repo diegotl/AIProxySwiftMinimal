@@ -19,11 +19,6 @@ nonisolated struct AIProxyConfiguration {
             return appTransactionID
         }
         #endif
-        do {
-            return try await AnonymousAccountStorage.sync()
-        } catch {
-            logIf(.error)?.error("AIProxy: Could not configure an anonymous account: \(error.localizedDescription)")
-        }
         return nil
     }
 }

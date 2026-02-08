@@ -92,13 +92,13 @@ enum AIProxyUtils {
         let ri = await RuntimeInfo.getCurrent()
         let fields: [String] = [
             "v4",
-            ri.bundleID,
-            ri.appVersion,
+            ri["bundleID"] ?? "unknown",
+            ri["appVersion"] ?? "unknown",
             AIProxy.sdkVersion,
             String(Date().timeIntervalSince1970),
-            ri.systemName,
-            ri.osVersion,
-            ri.deviceModel,
+            ri["systemName"] ?? "unknown",
+            ri["osVersion"] ?? "unknown",
+            ri["deviceModel"] ?? "unknown",
             String(bodySize ?? 0)
         ]
         return fields.joined(separator: "|")

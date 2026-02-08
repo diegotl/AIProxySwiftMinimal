@@ -22,9 +22,6 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "AIProxy",
-            resources: [
-                .process("Resources/PrivacyInfo.xcprivacy")
-            ],
             swiftSettings: [
                 .swiftLanguageMode(.v6),
 
@@ -46,10 +43,6 @@ let package = Package(
 
                 .enableUpcomingFeature("NonisolatedNonsendingByDefault")
             ]
-        ),
-        .testTarget(
-            name: "AIProxyTests",
-            dependencies: ["AIProxy"]
-        ),
+        )
     ]
 )

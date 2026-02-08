@@ -33,7 +33,6 @@ import IOKit
         if let clientID = clientID {
             return clientID
         }
-        await ClientLibErrorLogger.logClientIdentifierIsNil()
         return "unknown"
     }
 

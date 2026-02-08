@@ -1,78 +1,97 @@
 //
 //  RuntimeInfo.swift
-//  AIProxy
 //
-//  Created by Lou Zell on 5/21/25.
+//
+//  Created by Lou Zell on 12/15/24.
 //
 
 import Foundation
 
-#if canImport(UIKit)
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+import AppKit
+#elseif canImport(UIKit)
 import UIKit
 #endif
 
-nonisolated struct RuntimeInfo {
-    let appName: String
-    let appVersion: String
-    let buildNumber: String
-    let bundleID: String
-    let deviceModel: String
-    let osVersion: String
-    let systemName: String
+/// Information about the runtime environment
+enum RuntimeInfo {
 
-    static func getCurrent() async -> RuntimeInfo {
-        let bundle = Bundle.main
-        let infoDict = bundle.infoDictionary ?? [:]
-
-        return RuntimeInfo(
-            appName: infoDict["CFBundleName"] as? String ?? "Unknown",
-            appVersion: infoDict["CFBundleShortVersionString"] as? String ?? "Unknown",
-            buildNumber: infoDict["CFBundleVersion"] as? String ?? "Unknown",
-            bundleID: bundle.bundleIdentifier ?? "Unknown",
-            deviceModel: getDeviceModel(),
-            osVersion: getOSVersion(),
-            systemName: await getSystemName()
-        )
-    }
-}
-
-nonisolated private func getDeviceModel() -> String {
-    #if os(macOS)
-    let sysCallName = "hw.model"
-    #else
-    let sysCallName = "hw.machine"
-    #endif
-    var size: size_t = 0
-    guard sysctlbyname(sysCallName, nil, &size, nil, 0) == noErr,
-          size > 1 else {
-        return "Unknown"
+    /// Returns the OS name, e.g., "iOS", "macOS", "watchOS", "visionOS"
+    static func getOS() -> String {
+        #if os(watchOS)
+        return "watchOS"
+        #elseif os(visionOS)
+        return "visionOS"
+        #elseif os(iOS)
+        return "iOS"
+        #elseif os(macOS)
+        return "macOS"
+        #else
+        return "unknown"
+        #endif
     }
 
-    var machine = [CChar](repeating: 0, count: size)
-    guard sysctlbyname(sysCallName, &machine, &size, nil, 0) == noErr else {
-        return "Unknown"
+    /// Returns the OS version, e.g., "17.2"
+    static func getOSVersion() -> String {
+        #if os(watchOS)
+        return WKInterfaceDevice.current().systemVersion
+        #elseif os(visionOS)
+        // visionOS doesn't have UIDevice or WKInterfaceDevice, use ProcessInfo
+        return ProcessInfo.processInfo.operatingSystemVersionString
+        #elseif os(iOS)
+        return UIDevice.current.systemVersion
+        #elseif os(macOS)
+        let version = ProcessInfo.processInfo.operatingSystemVersion
+        return "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
+        #else
+        return "unknown"
+        #endif
     }
 
-    let decoding = machine
-        .prefix(size - 1)
-        .map { UInt8($0) }
+    /// Returns the model name, e.g., "iPhone16,2"
+    static func getModel() -> String {
+        #if os(watchOS)
+        return WKInterfaceDevice.current().systemVersion
+        #elseif targetEnvironment(simulator)
+        #if canImport(AppKit) && !targetEnvironment(macCatalyst)
+        return "macOS-Simulator"
+        #elseif canImport(UIKit)
+        return "iOS-Simulator"
+        #else
+        return "Simulator"
+        #endif
+        #elseif os(watchOS)
+        return WKInterfaceDevice.current().systemVersion
+        #elseif os(iOS)
+        var systemInfo = utsname()
+        uname(&systemInfo)
+        let machineCode = withUnsafePointer(to: &systemInfo.machine) {
+            $0.withMemoryRebound(to: CChar.self, capacity: 1) {
+                ptr in String(validatingUTF8: ptr)
+            }
+        }
+        return machineCode ?? "unknown"
+        #elseif os(macOS)
+        return "macOS"
+        #else
+        return "unknown"
+        #endif
+    }
 
-    let deviceModel = String(decoding: decoding, as: UTF8.self)
-    logIf(.debug)?.debug("Inferred device model to be: \(deviceModel)")
-    return deviceModel
-}
+    /// Returns runtime information as a dictionary
+    static func getCurrent() async -> [String: String] {
+        let bundleID = Bundle.main.bundleIdentifier ?? "unknown"
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
+        let systemName = getOS()
+        let osVersion = getOSVersion()
+        let deviceModel = getModel()
 
-nonisolated private func getSystemName() async -> String {
-    #if os(macOS)
-    return "macOS"
-    #elseif os(watchOS)
-    return "watchOS"
-    #else
-    return await UIDevice.current.systemName
-    #endif
-}
-
-nonisolated private func getOSVersion() -> String {
-    let osVersion = ProcessInfo.processInfo.operatingSystemVersion
-    return "\(osVersion.majorVersion).\(osVersion.minorVersion).\(osVersion.patchVersion)"
+        return [
+            "bundleID": bundleID,
+            "appVersion": appVersion,
+            "systemName": systemName,
+            "osVersion": osVersion,
+            "deviceModel": deviceModel
+        ]
+    }
 }
