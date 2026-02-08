@@ -5,6 +5,11 @@
 //  Created by Lou Zell on 12/14/24.
 //
 
+import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+
 @AIProxyActor final class OpenAIDirectService: OpenAIService, DirectService, Sendable {
     /// This initializer is not public on purpose.
     /// Customers are expected to use the factory `AIProxy.directOpenAIService` defined in AIProxy.swift

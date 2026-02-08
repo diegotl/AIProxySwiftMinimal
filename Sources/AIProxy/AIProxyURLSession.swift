@@ -6,6 +6,9 @@
 //
 
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 nonisolated public enum AIProxyURLSession {
     /// Creates a URLSession that is configured for communication with AI services
