@@ -27,7 +27,9 @@ import FoundationNetworking
     ) async throws -> URLRequest {
         let resolvedClientID = await getResolvedClientID(clientID)
         var request = try URLRequest(serviceURL: serviceURL, proxyPath: proxyPath)
+        #if !os(Linux)
         request.networkServiceType = .avStreaming
+        #endif
         request.httpMethod = verb.toString(hasBody: body != nil)
         request.httpBody = body
         request.addValue(partialKey, forHTTPHeaderField: "aiproxy-partial-key")
@@ -81,7 +83,9 @@ import FoundationNetworking
         }
 
         var request = URLRequest(url: url)
+        #if !os(Linux)
         request.networkServiceType = .avStreaming
+        #endif
         request.httpMethod = verb.toString(hasBody: body != nil)
         request.httpBody = body
 
