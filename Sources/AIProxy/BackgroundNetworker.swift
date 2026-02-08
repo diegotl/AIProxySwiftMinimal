@@ -18,6 +18,7 @@ import FoundationNetworking
         return try await urlSession.data(for: request)
     }
 
+    #if !os(Linux)
     static func makeRequestAndWaitForAsyncBytes(
         _ urlSession: URLSession,
         _ request: URLRequest
@@ -25,4 +26,5 @@ import FoundationNetworking
         let (asyncBytes, response) = try await urlSession.bytes(for: request)
         return (asyncBytes, response)
     }
+    #endif
 }

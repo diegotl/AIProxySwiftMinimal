@@ -29,6 +29,7 @@ extension ServiceMixin {
         return try T.deserialize(from: data)
     }
 
+    #if !os(Linux)
     @AIProxyActor func makeRequestAndDeserializeStreamingChunks<T: Decodable & Sendable>(_ request: URLRequest) async throws -> AsyncThrowingStream<T, Error> {
         if AIProxy.printRequestBodies {
             printRequestBody(request)
@@ -117,6 +118,7 @@ extension ServiceMixin {
             }
         }
     }
+    #endif
 }
 
 private extension URLRequest {
@@ -152,6 +154,7 @@ nonisolated private func printBufferedResponseBody(_ data: Data) {
     )
 }
 
+#if !os(Linux)
 nonisolated private func printStreamingResponseChunk(_ chunk: String) {
     logIf(.debug)?.debug(
         """
@@ -160,3 +163,4 @@ nonisolated private func printStreamingResponseChunk(_ chunk: String) {
         """
     )
 }
+#endif
