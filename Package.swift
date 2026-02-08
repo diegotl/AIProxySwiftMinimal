@@ -11,6 +11,9 @@ let package = Package(
          .visionOS(.v1),
          .watchOS(.v9)
     ],
+    // Note: This package can also be used on Linux, but Swift Package Manager
+    // doesn't support Linux in the platforms array. On Linux, the platform
+    // requirement is simply ignored.
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(

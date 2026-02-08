@@ -4,6 +4,14 @@
 
 This package contains only the essential components needed for projects requiring simple AI chat completions, stripped down to maximize performance and minimize code footprint.
 
+## Platform Support
+
+- ✅ **iOS** 15.0+
+- ✅ **macOS** 13.0+
+- ✅ **visionOS** 1.0+
+- ✅ **watchOS** 9.0+
+- ✅ **Linux** (Swift 5.9+)
+
 ## What's Included
 
 This minimal version includes support for only **3 AI providers**:

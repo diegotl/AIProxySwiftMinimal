@@ -18,7 +18,7 @@ import IOKit
 @AIProxyActor enum AIProxyIdentifier {
     /// Generates a clientID for this device.
     /// - Returns: The AIProxy stableID if the developer configured the SDK with `useStableID`.
-    ///            Otherwise, a UIDevice ID on iOS, an IOKit ID on macOS
+    ///            Otherwise, a UIDevice ID on iOS, an IOKit ID on macOS, or a random UUID on Linux
     internal static func getClientID() async -> String {
         if let stableID = AIProxy.stableID {
             return stableID
@@ -29,6 +29,8 @@ import IOKit
         let clientID = await UIDevice.current.identifierForVendor?.uuidString
 #elseif canImport(IOKit)
         let clientID = getIdentifierFromIOKit()
+#elseif os(Linux)
+        let clientID = UUID().uuidString
 #endif
         if let clientID = clientID {
             return clientID

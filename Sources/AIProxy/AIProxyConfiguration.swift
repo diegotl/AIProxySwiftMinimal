@@ -14,11 +14,8 @@ nonisolated struct AIProxyConfiguration {
     var stableID: String?
 
     @AIProxyActor static internal func getStableIdentifier() async -> String? {
-        #if !DEBUG
-        if let appTransactionID = await AIProxyUtils.getAppTransactionID() {
-            return appTransactionID
-        }
-        #endif
+        // StoreKit appTransactionID is not supported in this minimal version
+        // to maintain cross-platform compatibility
         return nil
     }
 }

@@ -16,7 +16,7 @@ import UIKit
 /// Information about the runtime environment
 enum RuntimeInfo {
 
-    /// Returns the OS name, e.g., "iOS", "macOS", "watchOS", "visionOS"
+    /// Returns the OS name, e.g., "iOS", "macOS", "watchOS", "visionOS", "Linux"
     static func getOS() -> String {
         #if os(watchOS)
         return "watchOS"
@@ -26,6 +26,8 @@ enum RuntimeInfo {
         return "iOS"
         #elseif os(macOS)
         return "macOS"
+        #elseif os(Linux)
+        return "Linux"
         #else
         return "unknown"
         #endif
@@ -40,7 +42,7 @@ enum RuntimeInfo {
         return ProcessInfo.processInfo.operatingSystemVersionString
         #elseif os(iOS)
         return UIDevice.current.systemVersion
-        #elseif os(macOS)
+        #elseif os(macOS) || os(Linux)
         let version = ProcessInfo.processInfo.operatingSystemVersion
         return "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
         #else
@@ -73,6 +75,15 @@ enum RuntimeInfo {
         return machineCode ?? "unknown"
         #elseif os(macOS)
         return "macOS"
+        #elseif os(Linux)
+        // Try to get system info from /proc/cpuinfo or similar
+        #if arch(arm64)
+        return "Linux-arm64"
+        #elseif arch(x86_64)
+        return "Linux-x86_64"
+        #else
+        return "Linux"
+        #endif
         #else
         return "unknown"
         #endif
@@ -80,8 +91,14 @@ enum RuntimeInfo {
 
     /// Returns runtime information as a dictionary
     static func getCurrent() async -> [String: String] {
+        #if os(Linux)
+        // On Linux, Bundle.main might not have the same structure
+        let bundleID = "unknown-linux"
+        let appVersion = "unknown"
+        #else
         let bundleID = Bundle.main.bundleIdentifier ?? "unknown"
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
+        #endif
         let systemName = getOS()
         let osVersion = getOSVersion()
         let deviceModel = getModel()
